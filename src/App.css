@@ -1,0 +1,44 @@
+.btnPrimary{
+    background: #000;
+    color: white;
+    padding: 10px 20px;
+    border-radius: 5px;
+    cursor: pointer;
+    transition:all;
+    transition-duration: .1s;
+}
+.btnPrimary:hover{
+    background: #383838;
+}
+.btnPrimary:active .btnSecondary:active{
+    scale: 0.98;
+}
+
+
+.btnSecondary{
+    background: #f2f2f2;
+    color: black;
+    padding: 10px 20px;
+    border-radius: 5px;
+    cursor: pointer;
+    transition:all;
+    transition-duration: .1s;
+}
+.btnOutineSuccess{
+    background: #dffd9e6d;
+    color: rgb(123, 255, 46);
+    padding: 10px 20px;
+    border-radius: 5px;
+    cursor: pointer;
+    transition:all;
+    transition-duration: .1s;
+    border: 2px solid green;
+}
+
+.btnSecondary:hover{
+    background-color: #eaeaea;
+}
+
+.active{
+    background: rgb(233, 233, 233);
+}
