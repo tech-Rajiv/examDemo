@@ -11,11 +11,12 @@ import { useEffect, useState } from "react";
 import Stack from "@mui/material/Stack";
 import Pagination from "@mui/material/Pagination";
 import AutorenewIcon from "@mui/icons-material/Autorenew";
-
+import SearchIcon from "@mui/icons-material/Search";
 //this comp has one job to show all exams and let user  interact
 function StudentDashboard() {
   const { data, loading, error, throtleCheckAndFetch } = useFetchAllTest();
   const [showExams, setShowExams] = useState(); //this will hold sliced data with sync of pageno
+  const [baseContainerOfAllExam, setBaseContainerOfAllExam] = useState(); //this is the container which will hold all the data and give to showExam state and that will only show.
 
   //now the paginations states
   //this is a logic which solves a problem that is when we change page and go to a comp suppose in page5 gone to see its result then when we press age page starts from 1, so to solve this problem and make user resume from page number they were i create a store state and logic
@@ -25,32 +26,33 @@ function StudentDashboard() {
   const [pageNo, setPageNo] = useState(pageNoFromReduxIntial); //initialy starting at 1
   const [maxPageCount, setMaxPageCount] = useState(); //it is last number of pageination
   const listPerPage = 5; // items that can be paginated per page
-  
+
   //few dispatches
   const dispatch = useDispatch();
   const navigate = useNavigate();
 
-  //just to set the data to showExams state when i get the data.
+  // //to search
+  const [searchInp, setSearchInp] = useState("");
+
+  useEffect(() => {
+    setBaseContainerOfAllExam(data);
+    // setMaxPageCount(Math.floor(data?.length / listPerPage));
+  }, [data]);
+
+  useEffect(() => {
+    setMaxPageCount(Math.floor(baseContainerOfAllExam?.length / listPerPage));
+  }, [baseContainerOfAllExam]);
+
   useEffect(() => {
     paginationLogic(pageNo); //if data is there then this paginated logic will decide how much to show
     dispatch(settingStudentInALlExamsIsAtPageNo(pageNo));
-  }, [data, pageNo]);
+  }, [baseContainerOfAllExam, pageNo]);
 
   //logic wise slicing and adding 10 to the placeholder
   const paginationLogic = (number) => {
-    setShowExams(data?.slice(number, number + listPerPage)); //slicing 5items per page number
+    setShowExams(baseContainerOfAllExam?.slice(number, number + listPerPage)); //slicing 5items per page number
   };
 
-  //this useefect can be used in above useefect but that has pagenum as dependency which will triger everytime page change so i had to make seprate useefect here
-  useEffect(() => {
-    setMaxPageCount(Math.floor(data?.length / listPerPage));
-  }, [data]);
-
-  // just in case i get an error so
-  if (error) {
-    // console.log(error);
-    return "something went wrong.";
-  }
   //i used the concept of delegation rather than assigning eventListner to all test for btns clicked which is roughly 700+ tests so i use tagName or could have used className  to get the targeted elemnt
   const handleTestClicked = (e) => {
     const element = e.target;
@@ -92,8 +94,20 @@ function StudentDashboard() {
     throtleCheckAndFetch();
   };
 
-
-
+  //this is the lastest work i did on 3sept so i want to add debounse and few features, will be adding if got time
+  useEffect(() => {
+    if (!searchInp) {
+      console.log("reset");
+      setBaseContainerOfAllExam(data);
+      return;
+    }
+    if (searchInp) {
+      const filtered = data.filter((item) =>
+        item.subjectName.toLowerCase().includes(searchInp.toLowerCase())
+      );
+      setBaseContainerOfAllExam(filtered);
+    }
+  }, [searchInp]);
 
   return (
     <div className="max-w-7xl mx-auto py-5">
@@ -101,19 +115,30 @@ function StudentDashboard() {
         <h2 className="py-2  font-semibold text-lg mb-5 flex items-center justify-center gap-2">
           All EXAMS <QuizIcon />
         </h2>
-        <div className="refresh flex justify-end ">
-          <button
-            onClick={handleRefresh}
-            className="btnRefresh text-gray-800 active:text-gray-400 py-2 px-2 flex items-center gap-2 cursor-pointer"
-          >
-            <AutorenewIcon />
-            refresh
-          </button>
-        </div>
-        {loading ? (
-          "loading..."
-        ) : (
+        {loading && "Loading..."}
+        {error && "No exams to show."}
+        {showExams && !loading && (
           <div className="wrapper">
+            <div className="refresh flex justify-between mb-2">
+              <div className="inp flex gap-2 items-center">
+                <input
+                  type="search"
+                  value={searchInp}
+                  onChange={(e) => setSearchInp(e.target.value)}
+                  placeholder="search exam subject"
+                  className="px-2 py-1 rounded-lg border border-gray-400"
+                />
+                <SearchIcon sx={{ fontSize: 30, color: "gray" }} />
+              </div>
+              <button
+                onClick={handleRefresh}
+                className="btnRefresh text-gray-800 active:text-gray-400 py-2 px-2 flex items-center gap-2 cursor-pointer"
+              >
+                <AutorenewIcon />
+                refresh
+              </button>
+            </div>
+
             <div
               onClick={handleTestClicked}
               className="allExamsDiv rounded-2xl overflow-hidden shadow"
@@ -121,6 +146,11 @@ function StudentDashboard() {
               {showExams?.map((test) => {
                 return <SingleShowExamComp key={test._id} test={test} />;
               })}
+              {showExams.length <= 0 && (
+                <p className="flex min-h-50 items-center justify-center">
+                  nothing to show
+                </p>
+              )}
             </div>
             <div className="pages flex justify-center gap-2 mt-5">
               <Stack spacing={2}>
@@ -131,7 +161,6 @@ function StudentDashboard() {
                   onChange={handlePageChange}
                 />
               </Stack>
-         
             </div>
           </div>
         )}
