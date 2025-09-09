@@ -48,9 +48,13 @@ function StudentDashboard() {
     dispatch(settingStudentInALlExamsIsAtPageNo(pageNo));
   }, [baseContainerOfAllExam, pageNo]);
 
+  const pageSize = 5;
   //logic wise slicing and adding 10 to the placeholder
   const paginationLogic = (number) => {
-    setShowExams(baseContainerOfAllExam?.slice(number, number + listPerPage)); //slicing 5items per page number
+    const startIndex = (number - 1) * pageSize;
+    const endIndex = startIndex + pageSize;
+    setShowExams(baseContainerOfAllExam?.slice(startIndex, endIndex));
+    // setShowExams(baseContainerOfAllExam?.slice(number, number + listPerPage)); //slicing 5items per page number
   };
 
   //i used the concept of delegation rather than assigning eventListner to all test for btns clicked which is roughly 700+ tests so i use tagName or could have used className  to get the targeted elemnt
@@ -91,16 +95,17 @@ function StudentDashboard() {
 
   //this will be helpfull when user clicks this button after giving test as result may take few time to reflect so that he can refresh in few sec to get latest data, which has result
   const handleRefresh = () => {
+    setPageNo(1);
     throtleCheckAndFetch();
   };
 
   //this is the lastest work i did on 3sept so i want to add debounse and few features, will be adding if got time
   useEffect(() => {
     if (!searchInp) {
-      console.log("reset");
       setBaseContainerOfAllExam(data);
       return;
     }
+    setPageNo(1);
     if (searchInp) {
       const filtered = data.filter((item) =>
         item.subjectName.toLowerCase().includes(searchInp.toLowerCase())

@@ -32,7 +32,7 @@ function TeacherDashboard() {
         <h2 className="  font-semibold text-lg mb-5 flex items-center justify-center gap-2">
           All CREATED EXAMS <QuizIcon />
         </h2>
-        <div className="flex items-center justify-end  mb-2"><button onClick={refreshFetchedCreatedExams} className=" cursor-pointer active:text-gray-500">refresh <AutorenewIcon /></button></div>
+        <div className="flex items-center justify-between  mb-2"><span className="p text-gray-400 text-sm">note: Refresh if recently created exam is missing or not visible</span><button onClick={refreshFetchedCreatedExams} className=" cursor-pointer active:text-gray-500">refresh <AutorenewIcon /></button></div>
         {loading && <Skeleton />}
         {!loading && allCreatedExams?.length <= 0 ? (
           <p className="flex gap-2 items-center text-gray-400">

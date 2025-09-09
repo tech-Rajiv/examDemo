@@ -9,7 +9,6 @@ import { settingSelectedExamToEdit } from "../features/teacherSlice";
 import { useDispatch } from "react-redux";
 import EditIcon from "@mui/icons-material/Edit";
 import DeleteIcon from "@mui/icons-material/Delete";
-import { Badge } from "@mui/material";
 
 function TeacherExamCreatedRowWithButtons({ exam, index }) {
   // this is funtion that fetches allexamcreate and i have this in here bcz when i delete below, then i need to refetch so

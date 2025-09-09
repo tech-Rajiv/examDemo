@@ -6,7 +6,7 @@ import toast from "react-hot-toast";
 import ErrorOutlineIcon from '@mui/icons-material/ErrorOutline';
 import AssignmentIcon from "@mui/icons-material/Assignment";
 import useFetchGetHook from "../../hooks/fetchHooks/useFetchGetHook";
-import useFetchAllTest from "../../hooks/student/useFetchAllTest";
+import BackButton from '../../components/ui/BackButton'
 
 function ExamPaperComponent({}) {
   const [allQuestions, setAllQUestions] = useState(); //local placeholder for exams questions
@@ -49,7 +49,8 @@ function ExamPaperComponent({}) {
   };
 
   return (
-    <div>
+    <div className="max-w-xl mx-auto">
+      <BackButton />
       <div className="main py-5">
         <h2 className="text-xl font-semibold py-5 flex gap-2 justify-center">
           <AssignmentIcon />

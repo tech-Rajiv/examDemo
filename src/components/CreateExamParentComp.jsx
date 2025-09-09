@@ -11,6 +11,7 @@ function CreateExamParentComp({
   handleAllQuestions,
   loading,
 }) {
+  
   const [isCurrentQuestionValid, setIsCurrentQuestionValid] = useState(false); //this is from child to let me know wether to allow user click next or not
 
   //just to start the boiler plate of questions and errors as empty
@@ -26,13 +27,6 @@ function CreateExamParentComp({
       })),
   });
 
-  //few useEffects
-  //when loading this comp with new index i want to check first if question ,option , answer is valid so use ese effect
-  useEffect(() => {
-    checkValidQuestion(questions[currentQuestionIndex]?.question); //when we render this comp as back next i will send to check if this has error
-    checkValidOptions(questions[currentQuestionIndex]?.options);
-    checkValidAnswer(questions[currentQuestionIndex]?.options);
-  }, [questions, currentQuestionIndex]);
 
   //-------------------------------------------VALIDATION_PORTIONS-----------------------------------
 
@@ -40,9 +34,10 @@ function CreateExamParentComp({
   const checkValidQuestion = (value) => {
     //returns true if the in all question of 15 found same question, which is not same index mean not same question
     const isDuplicate = questions.some(
-      (q, i) => q.question === value && i !== currentQuestionIndex
+      (q, i) =>
+        q?.question?.toLowerCase() === value?.toLowerCase() &&
+        i !== currentQuestionIndex
     );
-    //this is just the way to leave every error same , and just change questionError acc to the above duplicate value
     setErrors((prev) => ({
       ...prev,
       allQuestionsError: prev.allQuestionsError.map((err, idx) => {
@@ -52,14 +47,17 @@ function CreateExamParentComp({
             questionError:
               isDuplicate && value //i have two conditions one if duplicate 2nd when dont have any value
                 ? "question already exists"
-                : value
+                : value?.trim()
                 ? ""
                 : "question cannot be empty",
           };
         }
         return err;
-      }),
+      }), 
     }));
+
+    return isDuplicate;
+    //this is just the way to leave every error same , and just change questionError acc to the above duplicate value
   };
 
   //this fn job is to check give a array of options if an option is repeated or if any option is empty
@@ -68,17 +66,17 @@ function CreateExamParentComp({
     let error = ""; //error as empty
     //this is norml js logic to trace every option one by one and push in seen[] and conclue if anyone is duplicate or empty
     options?.forEach((opt) => {
-      if (!opt.value) {
+      if (!opt.value.trim()) {
         //this empty basicaly runs for every opt and will set error of empty
         error = "all option fields are required";
       }
-      if (seen.includes(opt.value) && opt.value.trim()) {
+      if (seen.includes(opt.value.trim()) && opt.value.trim()) {
         error = "option has duplicate values"; //this will set error as duplicate, note: if any option is empty and any one is duplicate also, then empty error from above will be over ridden by duplicate error, as this has more priority
       } else {
         seen.push(opt.value);
       }
     });
-    //whetever the error value is just set it to optionError leving all else same
+
     setErrors((prev) => ({
       ...prev,
       allQuestionsError: prev.allQuestionsError.map((err, idx) => {
@@ -88,12 +86,12 @@ function CreateExamParentComp({
         return err;
       }),
     }));
+    return error;
   };
 
   //this fn job is to find answer , if found then no error if not then set error
   const checkValidAnswer = (options) => {
     const hasAnswer = options?.some((opt) => opt.isAnswer) ?? false; //basic js logic to find an answer
-    //setting error based on wheter found or not
     setErrors((prev) => ({
       ...prev,
       allQuestionsError: prev.allQuestionsError.map((err, idx) => {
@@ -106,6 +104,8 @@ function CreateExamParentComp({
         return err;
       }),
     }));
+    return hasAnswer;
+    //setting error based on wheter found or not
   };
 
   //this job to only check that is question fully valid now so that it can check and valid to show next button or not
@@ -137,6 +137,7 @@ function CreateExamParentComp({
       isAnswer: i === index,
     }));
     checkValidAnswer(updated[currentQuestionIndex].options); //this is the validation call fn, role is to just set errors, as discussed above
+
     setQuestions(updated);
   };
 
@@ -145,16 +146,16 @@ function CreateExamParentComp({
     const updated = structuredClone(questions); //same as above the logic type is js friendly
     updated[currentQuestionIndex].question = value;
 
-    // Check duplicate question
     checkValidQuestion(value); //same does the job of only showing error
+
     setQuestions(updated);
   };
 
   //staright forward as last wo, do let user add option and show error
   const handleOptionChange = (newValue, optIndex) => {
     const updated = structuredClone(questions); //again js type logic, will be changing to react type sometime
-
     updated[currentQuestionIndex].options[optIndex].value = newValue;
+
     checkValidOptions(updated[currentQuestionIndex].options);
     setQuestions(updated);
   };
@@ -168,17 +169,36 @@ function CreateExamParentComp({
     }
   };
   const handleNext = () => {
+    //validating first then letting user go next
+    const isValid = checkAllValid()
+    if(!isValid){
+      return
+    }  
     //if i have next ques then set curIndex to +1,  else disable will be applied from another useefect
     if (currentQuestionIndex < totalQuestions - 1) {
       setCurrentQuestionIndex((prev) => prev + 1);
-      // handlePageChhange("empty",currentQuestionIndex+1)
     }
   };
+
+  const checkAllValid = () => {
+    const queErr = checkValidQuestion(questions[currentQuestionIndex]?.question); //when we render this comp as back next i will send to check if this has error
+    const optErr = checkValidOptions(questions[currentQuestionIndex]?.options);
+    const hasAns = checkValidAnswer(questions[currentQuestionIndex]?.options);
+    if (queErr || optErr || !hasAns){
+      return false
+    }
+    return true
+  }
 
   //this job is to just send allQuestion when validated, to parent comp, cz i will be using ain create exam and edit exam both have this question in comman
   const handleSubmitExam = () => {
     if (loading) {
-      return 
+      return;
+    }
+        //validating first then letting user go next
+    const isValid = checkAllValid()
+    if(!isValid){
+      return
     }
     //this is to check if current is valid then only let proced bcz if he is in final submit everything till now would be validate thats how he reached here, so validating last now
     if (!isCurrentQuestionValid) {
@@ -199,10 +219,6 @@ function CreateExamParentComp({
     };
   };
 
-  // { question: "ques0", options: ["a","fd","c","d"], answer: "d" }
-  const handlePageChhange = (e, value) => {
-    setCurrentQuestionIndex(value - 1);
-  };
   return (
     <div className="max-w-2xl mx-auto">
       <SingleQuestionForm
@@ -213,6 +229,7 @@ function CreateExamParentComp({
         // handleAnswerChange={handleAnswerChange}
         {...{ handleQuestionChange, handleOptionChange, handleAnswerChange }}
         error={errors.allQuestionsError[currentQuestionIndex]}
+        loading={loading}
       />
 
       <div className="flex justify-between mt-4">
@@ -248,23 +265,6 @@ function CreateExamParentComp({
             Next
           </button>
         )}
-      </div>
-      {/* <hr className="my-5 text-gray-300" /> */}
-      <div
-        className={`pageTabs text-sm hidden justify-center ${
-          isCurrentQuestionValid ? "" : "pointer-events-none opacity-25"
-        }`}
-      >
-        <Stack spacing={2}>
-          <Pagination
-            count={totalQuestions}
-            color="primary"
-            onChange={handlePageChhange}
-          />
-        </Stack>
-        <p className="text-center mt-2">
-          for dev purpuse only(will be removed soon)
-        </p>
       </div>
     </div>
   );

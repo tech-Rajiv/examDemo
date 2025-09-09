@@ -1,7 +1,7 @@
 import React from 'react'
 import { Outlet } from 'react-router-dom'
 
-function BlankPage() {
+function RootPage() {
   return (
     <div>
         <Outlet />
@@ -9,4 +9,4 @@ function BlankPage() {
   )
 }
 
-export default BlankPage
+export default RootPage

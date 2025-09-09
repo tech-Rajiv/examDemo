@@ -12,7 +12,7 @@ function AddExamComp({ handleSubmitParent, loading }) {
   //just to start the boiler plate of questions and errors as empty
   const [error, setErrors] = useState({
     subjectError: null,
-    mainErrorMsg:null
+    mainErrorMsg: null,
   });
 
   //this is the data structure that i choosed for this particualr problem of mcq type creation, bcz this structure will make it less vunurable to error,
@@ -21,19 +21,19 @@ function AddExamComp({ handleSubmitParent, loading }) {
     Array(totalQuestions)
       .fill(null)
       .map((element, i) => ({
-        question: ``,
+        question: `Que${i}`,
         options: [
-          { value: "", isAnswer: false },
-          { value: "", isAnswer: false },
-          { value: "", isAnswer: false },
-          { value: "", isAnswer: false },
+          { value: `option1${i}`, isAnswer: false },
+          { value: `option2${i}`, isAnswer: true },
+          { value: `option3${i}`, isAnswer: false },
+          { value: `option4${i}`, isAnswer: false },
         ],
       }))
   );
 
   //this is last func that comes after all question is added and clicked submit from child,and at last checks subjectname and sends the data to parent function
   const handleAllQuestions = (allQuestions) => {
-    if ( !subjectName.trim()) {
+    if (!subjectName.trim()) {
       setErrors((prev) => ({
         ...prev,
         subjectError: "subject name is required",
@@ -45,25 +45,31 @@ function AddExamComp({ handleSubmitParent, loading }) {
       return;
     }
     // console.log(allQuestions);
-    const checkAllValid = checkingAllQuestions(allQuestions)
-    if(!checkAllValid){
+    const checkAllValid = checkingAllQuestions(allQuestions);
+    if (!checkAllValid) {
       // console.log('no some questions are missing');
-      setErrors(prev => ({...prev,mainErrorMsg:'some questions are not filled/valid check all questions once again'}))
-      return
+      setErrors((prev) => ({
+        ...prev,
+        mainErrorMsg:
+          "some questions are not filled/valid check all questions once again",
+      }));
+      return;
     }
 
-
+    // console.log('final call');
     //parent fn call with necessary payload
     handleSubmitParent(allQuestions, subjectName, notes);
   };
 
   //by the structure and logic iam going i will have blocked the next btn if error in cuurent ques, so mostly never does this func will be called with wrong value, but there can be exception that i currently dont know so im adding this check.
-  const checkingAllQuestions = (allQues) =>{
+  const checkingAllQuestions = (allQues) => {
     //this logic return true if all questions, have truthy value on question,options,n answer
-    const everythingGood = allQues.every(ques => ques.question && ques.answer && ques.options.every(opt => opt))
+    const everythingGood = allQues.every(
+      (ques) => ques.question && ques.answer && ques.options.every((opt) => opt)
+    );
     // console.log('every',everythingGood);
-    return everythingGood
-  }
+    return everythingGood;
+  };
 
   return (
     <div>
@@ -73,7 +79,7 @@ function AddExamComp({ handleSubmitParent, loading }) {
         <div className="subs flex flex-col gap-2 mb-10">
           <input
             type="text"
-            placeholder="subjectname"
+            placeholder="Subject Name"
             value={subjectName}
             onChange={(e) => {
               setSubjectName(e.target.value), setErrors({});
@@ -104,9 +110,11 @@ function AddExamComp({ handleSubmitParent, loading }) {
           handleAllQuestions={handleAllQuestions}
           loading={loading}
         />
-        {
-          error.mainErrorMsg && <div className="e text-red-200 mt-1 text-center">dev-purpose-error-{error.mainErrorMsg}</div>
-        }
+        {/* {error.mainErrorMsg && (
+          <div className="e text-red-200 mt-1 text-center">
+            dev-purpose-error-{error.mainErrorMsg}
+          </div>
+        )} */}
       </div>
     </div>
   );

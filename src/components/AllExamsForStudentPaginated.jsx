@@ -7,10 +7,12 @@ function AllExamsForStudentPaginated({ allExams }) {
   const [showExams, setShowExams] = useState([]); // placeholder to only store 10list at a time
   const [pageNo, setPageNo] = useState(1); //initialy starting at 1
   const [maxPageCount, setMaxPageCount] = useState();
-
+  const pageSize = 5
   //logic wise slicing and adding 10 to the placeholder
   const paginationLogic = (number) => {
-    setShowExams(allExams?.slice(number, number + 5));
+       const startIndex = (number - 1) * pageSize;
+    const endIndex = startIndex + pageSize;
+    setShowExams(allExams?.slice(startIndex, endIndex));
   };
 
   //this is mostly bcz of how miui library work they give value as number in pagination with event of nchange. see jsx below to understand

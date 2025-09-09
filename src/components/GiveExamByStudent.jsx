@@ -67,7 +67,7 @@ function GiveExamByStudent({ allQuestions, submitTheExam }) {
   }, [allQuestions]);
 
   return (
-    <div className="max-w-xl mx-auto   bg-white rounded-2xl p-2 sm:p-10">
+    <div className="   bg-white rounded-2xl p-2 sm:p-10">
       <p className="text-sm">
         {" "}
         Question {currentIndex + 1} of {allQuestions?.length}
@@ -78,7 +78,7 @@ function GiveExamByStudent({ allQuestions, submitTheExam }) {
       </h2>
 
       <div className="text-xl mt-10">{currentQuestion?.question}</div>
-      <div className="options py-5">
+      <div className={`options py-5 ${loading ? "pointer-events-none":""}`}>
         {currentQuestion?.options.map((opt, i) => (
           <label key={i} className=" block mb-2 cursor-pointer">
             <input

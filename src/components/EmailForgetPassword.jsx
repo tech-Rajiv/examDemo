@@ -72,7 +72,10 @@ function EmailForgetPassword() {
         )}
 
         {loading && (
-         <div className="p flex items-center gap-2 bg-black justify-center text-white py-3 rounded"><CircularProgress color="white" size={'18px'}/>please wait...</div>
+          <div className="p flex items-center gap-2 bg-black justify-center text-white py-3 rounded">
+            <CircularProgress color="white" size={"18px"} />
+            please wait...
+          </div>
         )}
         {!loading && !linkSendAlready && (
           <button className="btnPrimary" onClick={handleSendResetLinkInEmail}>

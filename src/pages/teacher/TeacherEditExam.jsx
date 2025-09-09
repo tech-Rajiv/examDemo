@@ -6,6 +6,8 @@ import { useSelector } from "react-redux";
 import toast from "react-hot-toast";
 import api from "../../services/APIs";
 import BackButton from '../../components/ui/BackButton'
+import EditSquareIcon from '@mui/icons-material/EditSquare';
+
 function TeacherEditExam() {
   const [allQuestions, setAllQuestions] = useState([]); //localplaceholder to getQues and let user update and then put request with this new ques
   const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
@@ -91,7 +93,7 @@ const formatQuestions = (questions) => {
   
   return <div className="mx-auto max-w-2xl py-5">
     <BackButton />
-    <div className="head mt-5 text-center font-semibold text-lg mb-5">Edit Question</div>
+    <div className="head mt-5 justify-center font-semibold text-lg mb-5 flex gap-2">Edit Question<EditSquareIcon /></div>
     {
         loading && "loading..."
     }

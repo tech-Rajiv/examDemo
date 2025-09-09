@@ -7,9 +7,14 @@ function SingleQuestionForm({
   handleAnswerChange,
   handleQuestionChange,
   handleOptionChange,
+  loading,
 }) {
   return (
-    <div className="p-8 bg-white  rounded-2xl mt-2">
+    <div
+      className={`${
+        loading ? "pointer-events-none" : ""
+      } p-8 bg-white  rounded-2xl mt-2`}
+    >
       <h2 className="font-semibold mb-2">Question {index + 1}</h2>
       <input
         type="text"
@@ -29,7 +34,7 @@ function SingleQuestionForm({
               type="radio"
               name={`answer-${index}`}
               checked={opt.isAnswer}
-              onChange={() => handleAnswerChange( optIndex)}
+              onChange={() => handleAnswerChange(optIndex)}
             />
             <input
               type="text"
@@ -56,7 +61,6 @@ function SingleQuestionForm({
       {error?.mainErrorMsg && (
         <p className="text-red-500 text-sm">{error.mainErrorMsg}</p>
       )}
-    
     </div>
   );
 }
