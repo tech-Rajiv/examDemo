@@ -4,7 +4,7 @@ import ArrowOutwardIcon from "@mui/icons-material/ArrowOutward";
 function SingleShowExamComp({ test }) {
   return (
     <div className="p-5   bg-white  border-b border-gray-300">
-      <div className="top flex justify-between items-center">
+      <div className="top flex  flex-col sm:flex-row  justify-between gap-2 sm:items-center">
         <div className="sub mt-2">
           Subject : <span className=" font-semibold">{test.subjectName}</span>
         </div>
@@ -30,7 +30,7 @@ function SingleShowExamComp({ test }) {
         </div>
       </div>
 
-      <div className="note mt-1">
+      <div className="note hidden mt-1">
         note :{" "}
         {test.notes.map((note, i) => (
           <div key={i}> - {note}</div>

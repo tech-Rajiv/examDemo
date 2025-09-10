@@ -25,7 +25,8 @@ function StudentDashboard() {
   );
   const [pageNo, setPageNo] = useState(pageNoFromReduxIntial); //initialy starting at 1
   const [maxPageCount, setMaxPageCount] = useState(); //it is last number of pageination
-  const listPerPage = 5; // items that can be paginated per page
+
+  const pageSize = 10;
 
   //few dispatches
   const dispatch = useDispatch();
@@ -40,7 +41,7 @@ function StudentDashboard() {
   }, [data]);
 
   useEffect(() => {
-    setMaxPageCount(Math.floor(baseContainerOfAllExam?.length / listPerPage));
+    setMaxPageCount(Math.floor(baseContainerOfAllExam?.length / pageSize));
   }, [baseContainerOfAllExam]);
 
   useEffect(() => {
@@ -48,7 +49,6 @@ function StudentDashboard() {
     dispatch(settingStudentInALlExamsIsAtPageNo(pageNo));
   }, [baseContainerOfAllExam, pageNo]);
 
-  const pageSize = 5;
   //logic wise slicing and adding 10 to the placeholder
   const paginationLogic = (number) => {
     const startIndex = (number - 1) * pageSize;
@@ -133,7 +133,9 @@ function StudentDashboard() {
                   placeholder="search exam subject"
                   className="px-2 py-1 rounded-lg border border-gray-400"
                 />
-                <SearchIcon sx={{ fontSize: 30, color: "gray" }} />
+                <div className="icon hidden sm:block">
+                  <SearchIcon sx={{ fontSize: 30, color: "gray" }} />
+                </div>
               </div>
               <button
                 onClick={handleRefresh}
@@ -144,29 +146,30 @@ function StudentDashboard() {
               </button>
             </div>
 
-            <div
-              onClick={handleTestClicked}
-              className="allExamsDiv rounded-2xl overflow-hidden shadow"
-            >
-              {showExams?.map((test) => {
-                return <SingleShowExamComp key={test._id} test={test} />;
-              })}
-              {showExams.length <= 0 && (
-                <p className="flex min-h-50 items-center justify-center">
-                  nothing to show
-                </p>
-              )}
-
-              <div className="pages flex justify-center gap-2 mt-5">
-                <Stack spacing={2}>
-                  <Pagination
-                    count={maxPageCount}
-                    color="primary"
-                    page={pageNoFromReduxIntial}
-                    onChange={handlePageChange}
-                  />
-                </Stack>
+            {!!showExams.length ? (
+              <div
+                onClick={handleTestClicked}
+                className="allExamsDiv rounded-2xl overflow-hidden shadow"
+              >
+                {showExams?.map((test) => {
+                  return <SingleShowExamComp key={test._id} test={test} />;
+                })}
               </div>
+            ) : (
+              <p className="flex min-h-50 items-center justify-center">
+                no record found
+              </p>
+            )}
+
+            <div className="pages flex justify-center gap-2 mt-5">
+              <Stack spacing={2}>
+                <Pagination
+                  count={maxPageCount}
+                  color="primary"
+                  page={pageNoFromReduxIntial}
+                  onChange={handlePageChange}
+                />
+              </Stack>
             </div>
           </div>
         )}
