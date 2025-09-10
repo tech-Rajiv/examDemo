@@ -156,16 +156,17 @@ function StudentDashboard() {
                   nothing to show
                 </p>
               )}
-            </div>
-            <div className="pages flex justify-center gap-2 mt-5">
-              <Stack spacing={2}>
-                <Pagination
-                  count={maxPageCount}
-                  color="primary"
-                  page={pageNoFromReduxIntial}
-                  onChange={handlePageChange}
-                />
-              </Stack>
+
+              <div className="pages flex justify-center gap-2 mt-5">
+                <Stack spacing={2}>
+                  <Pagination
+                    count={maxPageCount}
+                    color="primary"
+                    page={pageNoFromReduxIntial}
+                    onChange={handlePageChange}
+                  />
+                </Stack>
+              </div>
             </div>
           </div>
         )}

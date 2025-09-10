@@ -1,99 +1,45 @@
+const questionValidation = (questions, value, currentQuestionIndex) => {
+  let error;
+  //returns true if the in all question of 15 found same question, which is not same index mean not same question
+  const isDuplicate = questions.some(
+    (q, i) =>
+      q?.question?.toLowerCase() === value?.toLowerCase() &&
+      i !== currentQuestionIndex
+  );
+  return isDuplicate && value
+    ? "question already exists"
+    : value?.trim()
+    ? ""
+    : "question cannot be empty";
+};
 
-
-  const validateSubjectName = (value) => {
-    let error = ''
-    if(!value){
-      error = "please provide a subject name"
+const optionsValidations = (options) => {
+  const seen = [];
+  let error = "";
+  options?.forEach((opt) => {
+    if (!opt.value.trim()) {
+      error = "all option fields are required";
     }
-    return { result: value, error };
-  }
-  
-  const validateNotes = (value) => {
-    let error = ''
-    if(!value){
-      error = "give a note here"
+    if (seen.includes(opt.value.trim()) && opt.value.trim()) {
+      error = "option has duplicate values";
+    } else {
+      seen.push(opt.value);
     }
-    return { result: value, error };
-  }
-
-
-
-const validateAllQuestions = (questions) => {
-  const normalized = questions.map(q => (q?.question ?? "").trim().toLowerCase());
-
-  // build counts of each question text (ignore empty for duplicates)
-  const counts = normalized.reduce((map, q) => {
-    if (q) map[q] = (map[q] || 0) + 1;
-    return map;
-  }, {});
-
-  return normalized.map(q => {
-    if (!q) return "Question cannot be empty";
-    if (counts[q] > 1) return "Duplicate question found";
-    return null;
   });
+  return error;
 };
 
-
-
-
-
-
-const validateOptionEdit = (options) => {
-  const seen = new Set();
-
-  for (const option of options) {
-    if (!option || option.trim() === "") {
-      return "options cannot be empty";
-    }
-    if (seen.has(option.trim().toLowerCase())) {
-      return "options cannot be same";
-    }
-    seen.add(option.trim().toLowerCase());
-  }
-
-  return ""; // no errors
-};
-
-
-
-
-  const validateAnswerEdit = (value, indexQues,indeOption,allQuestions) => {
-return{
-        result:value,
-        error:"answer is empty"
-    }
-  }
-
-
-  
-const checkOverAllErrors = (errors) => {
-  // check subject + notes + mainMessage
-  if (errors.subjectError) return true;
-  if (errors.notesError) return true;
-  if (errors.mainMessage) return true;
-
-  // check each questionError object
-  if (Array.isArray(errors.questionError)) {
-    for (const qErr of errors.questionError) {
-      if (qErr?.question || qErr?.option || qErr?.answer) {
-        return true;
-      }
-    }
-  }
-
-  return false; // no errors found
+const answerValidations = (options) => {
+  const hasAnswer = options?.some((opt) => opt.isAnswer) ?? false;
+  return !hasAnswer;
 };
 
 function createExamValidations() {
   return {
-    validateNotes,
-    validateSubjectName,
-    validateOptionEdit,
-    validateAnswerEdit,
-    validateAllQuestions,
-    checkOverAllErrors
-  }
+    questionValidation,
+    optionsValidations,
+    answerValidations,
+  };
 }
 
 export default createExamValidations;

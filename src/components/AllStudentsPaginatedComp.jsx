@@ -28,8 +28,6 @@ function AllStudentsPaginatedComp({ allStudents }) {
     paginationLogic(value);
   };
 
-
-
   useEffect(() => {
     if (allStudents?.length) {
       setMaxPageCount(Math.ceil(allStudents.length / pageSize));
@@ -39,7 +37,7 @@ function AllStudentsPaginatedComp({ allStudents }) {
 
   //counting setting last pageNumber
   useEffect(() => {
-    setMaxPageCount(Math.floor(allStudents.length / 10)); 
+    setMaxPageCount(Math.floor(allStudents.length / 10));
   }, [allStudents]);
 
   //this to fetch all details of a particula student if he has any result
@@ -50,7 +48,7 @@ function AllStudentsPaginatedComp({ allStudents }) {
   return (
     <div className="load flex flex-col ">
       <div className="datas ">
-        <div className="head grid text-lg  grid-cols-[1fr_1.5fr_1fr_.5fr] mb-5 font-semibold">
+        <div className="head overflow-x-scroll grid text-lg  grid-cols-[1fr_1.5fr_1fr_.5fr] mb-5 font-semibold">
           {/* <div className="id">ID</div> */}
           <div className="name">Name</div>
           <div className="email">Email</div>

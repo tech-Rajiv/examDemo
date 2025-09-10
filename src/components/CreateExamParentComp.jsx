@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
 import SingleQuestionForm from "./SingleQuestionForm";
 import { Box, CircularProgress, Pagination, Stack } from "@mui/material";
+import createExamValidations from "../utils/teacher/createExamValidations";
 
 function CreateExamParentComp({
   questions,
@@ -11,7 +12,6 @@ function CreateExamParentComp({
   handleAllQuestions,
   loading,
 }) {
-  
   const [isCurrentQuestionValid, setIsCurrentQuestionValid] = useState(false); //this is from child to let me know wether to allow user click next or not
 
   //just to start the boiler plate of questions and errors as empty
@@ -27,90 +27,13 @@ function CreateExamParentComp({
       })),
   });
 
+  //these are the three fn that will help to set error onchange
+  const { questionValidation, optionsValidations, answerValidations } =
+    createExamValidations();
 
-  //-------------------------------------------VALIDATION_PORTIONS-----------------------------------
-
-  //this basicaly does check the question and gives error on first render and whenevr question is edited.
-  const checkValidQuestion = (value) => {
-    //returns true if the in all question of 15 found same question, which is not same index mean not same question
-    const isDuplicate = questions.some(
-      (q, i) =>
-        q?.question?.toLowerCase() === value?.toLowerCase() &&
-        i !== currentQuestionIndex
-    );
-    setErrors((prev) => ({
-      ...prev,
-      allQuestionsError: prev.allQuestionsError.map((err, idx) => {
-        if (idx === currentQuestionIndex) {
-          return {
-            ...err,
-            questionError:
-              isDuplicate && value //i have two conditions one if duplicate 2nd when dont have any value
-                ? "question already exists"
-                : value?.trim()
-                ? ""
-                : "question cannot be empty",
-          };
-        }
-        return err;
-      }), 
-    }));
-
-    return isDuplicate;
-    //this is just the way to leave every error same , and just change questionError acc to the above duplicate value
-  };
-
-  //this fn job is to check give a array of options if an option is repeated or if any option is empty
-  const checkValidOptions = (options) => {
-    const seen = [];
-    let error = ""; //error as empty
-    //this is norml js logic to trace every option one by one and push in seen[] and conclue if anyone is duplicate or empty
-    options?.forEach((opt) => {
-      if (!opt.value.trim()) {
-        //this empty basicaly runs for every opt and will set error of empty
-        error = "all option fields are required";
-      }
-      if (seen.includes(opt.value.trim()) && opt.value.trim()) {
-        error = "option has duplicate values"; //this will set error as duplicate, note: if any option is empty and any one is duplicate also, then empty error from above will be over ridden by duplicate error, as this has more priority
-      } else {
-        seen.push(opt.value);
-      }
-    });
-
-    setErrors((prev) => ({
-      ...prev,
-      allQuestionsError: prev.allQuestionsError.map((err, idx) => {
-        if (idx === currentQuestionIndex) {
-          return { ...err, optionError: error };
-        }
-        return err;
-      }),
-    }));
-    return error;
-  };
-
-  //this fn job is to find answer , if found then no error if not then set error
-  const checkValidAnswer = (options) => {
-    const hasAnswer = options?.some((opt) => opt.isAnswer) ?? false; //basic js logic to find an answer
-    setErrors((prev) => ({
-      ...prev,
-      allQuestionsError: prev.allQuestionsError.map((err, idx) => {
-        if (idx === currentQuestionIndex) {
-          return {
-            ...err,
-            answerError: hasAnswer ? "" : "please select an answer",
-          };
-        }
-        return err;
-      }),
-    }));
-    return hasAnswer;
-    //setting error based on wheter found or not
-  };
-
-  //this job to only check that is question fully valid now so that it can check and valid to show next button or not
   useEffect(() => {
-    //the reason im doing this when indexofQues change is suppose when use goes back and make errorness opt then iam letting stop to go forward as , any error will block the next btn
+    //this is simply if no error then make the next,submit button not disable, note:the error will only be seted on onchange, so first load without any changes will make this variable isValid true, so this will cause trouble
+    //and that will be handeled by next click btn below
     const errorOfThisQuestion = errors.allQuestionsError[currentQuestionIndex];
     if (
       errorOfThisQuestion?.questionError ||
@@ -123,94 +46,67 @@ function CreateExamParentComp({
     }
   }, [errors, currentQuestionIndex]); //this is depency which says if error chnage or index change then rerun this logic and decide to show next btn or not
 
-  //-------------------------------------------EDIT_PORTIONS-----------------------------------
+  //this runs when user types a questions and it also does two thing as above(handleAnswerChange) 1.to let user do, 2.to show errors of what he did
+  const handleQuestionOnChange = (newValue) => {
+    const updated = structuredClone(questions); //this is basic js logic, not react friendly style but this situation need this style as i want updated ques and to compare it at same time
+    updated[currentQuestionIndex].question = newValue;
+    setQuestions(updated);
+    const error = questionValidation(updated, newValue, currentQuestionIndex);
+    settingQuesError(error);
+  };
 
-  //this runs when user clicks any ans then i will do two thing 1let the use do the chnages 2.to show the error acc to the changes he made
-  const handleAnswerChange = (index) => {
-    const updated = structuredClone(questions); //this logic of editing is more of js friendly approch, more reactfriendly would be to use setALlQuestion(),but at this point this was more simpler so i did this, will change to react type in future
+  //staright forward as last wo, do let user add option and show error
+  const handleOptionOnChange = (newValue, optIndex) => {
+    const updated = structuredClone(questions); //same js logic for same reason as above questionOnChang
+    updated[currentQuestionIndex].options[optIndex].value = newValue;
+    const error = optionsValidations(updated[currentQuestionIndex].options);
+    settingOptError(error);
+    setQuestions(updated);
+  };
 
-    // reset all isAnswer to false, set only the selected one to true, based on index that we are reciving from the arguments
+  const handleAnswerOnChange = (optIndex) => {
+    const updated = structuredClone(questions);
     updated[currentQuestionIndex].options = updated[
       currentQuestionIndex
     ].options.map((opt, i) => ({
       ...opt,
-      isAnswer: i === index,
+      isAnswer: i === optIndex,
     }));
-    checkValidAnswer(updated[currentQuestionIndex].options); //this is the validation call fn, role is to just set errors, as discussed above
-
-    setQuestions(updated);
-  };
-
-  //this runs when user types a questions and it also does two thing as above(handleAnswerChange) 1.to let user do, 2.to show errors of what he did
-  const handleQuestionChange = (value) => {
-    const updated = structuredClone(questions); //same as above the logic type is js friendly
-    updated[currentQuestionIndex].question = value;
-
-    checkValidQuestion(value); //same does the job of only showing error
-
-    setQuestions(updated);
-  };
-
-  //staright forward as last wo, do let user add option and show error
-  const handleOptionChange = (newValue, optIndex) => {
-    const updated = structuredClone(questions); //again js type logic, will be changing to react type sometime
-    updated[currentQuestionIndex].options[optIndex].value = newValue;
-
-    checkValidOptions(updated[currentQuestionIndex].options);
+    const error = answerValidations(updated[currentQuestionIndex].options);
+    settingAnsError(error);
     setQuestions(updated);
   };
 
   //handelNext and previous are fairly easy.
   const handlePrev = () => {
-    //if i have previous ques then set curIndex to -1,  else disable will be applied from another useefect
     if (currentQuestionIndex > 0) {
       setCurrentQuestionIndex((prev) => prev - 1);
-      // handlePageChhange("empty",currentQuestionIndex-1)
     }
   };
+
   const handleNext = () => {
-    //validating first then letting user go next
-    const isValid = checkAllValid()
-    if(!isValid){
-      return
-    }  
-    //if i have next ques then set curIndex to +1,  else disable will be applied from another useefect
+    //this will do check first that fields have value and if not then return false and set error
+    const validToNext = clickedNextWithoutAnyInput();
+    if (!validToNext) return;
     if (currentQuestionIndex < totalQuestions - 1) {
       setCurrentQuestionIndex((prev) => prev + 1);
     }
   };
-
-  const checkAllValid = () => {
-    const queErr = checkValidQuestion(questions[currentQuestionIndex]?.question); //when we render this comp as back next i will send to check if this has error
-    const optErr = checkValidOptions(questions[currentQuestionIndex]?.options);
-    const hasAns = checkValidAnswer(questions[currentQuestionIndex]?.options);
-    if (queErr || optErr || !hasAns){
-      return false
-    }
-    return true
-  }
 
   //this job is to just send allQuestion when validated, to parent comp, cz i will be using ain create exam and edit exam both have this question in comman
   const handleSubmitExam = () => {
     if (loading) {
       return;
     }
-        //validating first then letting user go next
-    const isValid = checkAllValid()
-    if(!isValid){
-      return
-    }
-    //this is to check if current is valid then only let proced bcz if he is in final submit everything till now would be validate thats how he reached here, so validating last now
-    if (!isCurrentQuestionValid) {
-      // console.log("hass error");
-      return;
-    }
+    //same logic as above when clicked next
+    const validToSubmit = clickedNextWithoutAnyInput();
+    if (!validToSubmit) return;
+
     const formated = questions.map(transformQuestion); //formating based on BE
     // console.log("Final Exam Data:", formated);
     handleAllQuestions(formated); ///main fn call
   };
 
-  //bcz of i have used different datastructure, i need to transform to structure backend needs to changing it to the way it works
   const transformQuestion = (q) => {
     return {
       question: q.question,
@@ -219,15 +115,86 @@ function CreateExamParentComp({
     };
   };
 
+  //this is fn that will run when clicked next but the logic inside will set error based onn oly empty fields,
+  const clickedNextWithoutAnyInput = () => {
+    let isValid = true;
+
+    //the idea is basically check if questions has no values then call the settingError fn with particular eror
+    if (!questions[currentQuestionIndex].question) {
+      isValid = false;
+      settingQuesError("question cannot be empty");
+    }
+    questions[currentQuestionIndex].options.map((opt) => {
+      if (!opt.value) {
+        isValid = false;
+        settingOptError("all option fields are required");
+      }
+    });
+    const hasAns = questions[currentQuestionIndex].options.some(
+      (opt) => opt.isAnswer
+    );
+    if (!hasAns) {
+      settingAnsError("select an answer");
+      isValid = false;
+    }
+    if (!isValid) {
+      setErrors((prev) => ({
+        ...prev,
+        mainErrorMsg: "please fill all the fields",
+      }));
+    }
+    console.log(isValid, "isVal");
+    return isValid;
+  };
+
+  const settingQuesError = (errmsg) => {
+    setErrors((prev) => ({
+      ...prev,
+      allQuestionsError: prev.allQuestionsError.map((err, idx) => {
+        if (idx === currentQuestionIndex) {
+          return {
+            ...err,
+            questionError: errmsg,
+          };
+        }
+        return err;
+      }),
+    }));
+  };
+
+  //below fns are just setting error based on messages recieved
+  const settingOptError = (errmsg) => {
+    setErrors((prev) => ({
+      ...prev,
+      allQuestionsError: prev.allQuestionsError.map((err, idx) => {
+        if (idx === currentQuestionIndex) {
+          return { ...err, optionError: errmsg };
+        }
+        return err;
+      }),
+    }));
+  };
+  const settingAnsError = (errmsg) => {
+    setErrors((prev) => ({
+      ...prev,
+      allQuestionsError: prev.allQuestionsError.map((err, idx) => {
+        if (idx === currentQuestionIndex) {
+          return { ...err, answerError: errmsg };
+        }
+        return err;
+      }),
+    }));
+  };
   return (
     <div className="max-w-2xl mx-auto">
       <SingleQuestionForm
         question={questions[currentQuestionIndex]}
         index={currentQuestionIndex}
-        // handleQuestionChange={handleQuestionChange}
-        // handleOptionChange={handleOptionChange}
-        // handleAnswerChange={handleAnswerChange}
-        {...{ handleQuestionChange, handleOptionChange, handleAnswerChange }}
+        {...{
+          handleQuestionOnChange,
+          handleOptionOnChange,
+          handleAnswerOnChange,
+        }}
         error={errors.allQuestionsError[currentQuestionIndex]}
         loading={loading}
       />

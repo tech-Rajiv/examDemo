@@ -21,12 +21,12 @@ function AddExamComp({ handleSubmitParent, loading }) {
     Array(totalQuestions)
       .fill(null)
       .map((element, i) => ({
-        question: `Que${i}`,
+        question: ``,
         options: [
-          { value: `option1${i}`, isAnswer: false },
-          { value: `option2${i}`, isAnswer: true },
-          { value: `option3${i}`, isAnswer: false },
-          { value: `option4${i}`, isAnswer: false },
+          { value: ``, isAnswer: false },
+          { value: ``, isAnswer: false },
+          { value: ``, isAnswer: false },
+          { value: ``, isAnswer: false },
         ],
       }))
   );
