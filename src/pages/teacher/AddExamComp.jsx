@@ -1,6 +1,5 @@
-import React, { useState } from "react";
+import { useState } from "react";
 import CreateExamParentComp from "../../components/CreateExamParentComp";
-import { Pagination, Stack } from "@mui/material";
 
 function AddExamComp({ handleSubmitParent, loading }) {
   //initial settep
@@ -21,12 +20,12 @@ function AddExamComp({ handleSubmitParent, loading }) {
     Array(totalQuestions)
       .fill(null)
       .map((element, i) => ({
-        question: `Que${i}`,
+        question: ``,
         options: [
-          { value: `option1${i}`, isAnswer: false },
-          { value: `option2${i}`, isAnswer: true },
-          { value: `option3${i}`, isAnswer: false },
-          { value: `option4${i}`, isAnswer: false },
+          { value: ``, isAnswer: false },
+          { value: ``, isAnswer: false },
+          { value: ``, isAnswer: false },
+          { value: ``, isAnswer: false },
         ],
       }))
   );
@@ -47,12 +46,7 @@ function AddExamComp({ handleSubmitParent, loading }) {
     // console.log(allQuestions);
     const checkAllValid = checkingAllQuestions(allQuestions);
     if (!checkAllValid) {
-      // console.log('no some questions are missing');
-      setErrors((prev) => ({
-        ...prev,
-        mainErrorMsg:
-          "some questions are not filled/valid check all questions once again",
-      }));
+      console.log("no some questions are missing");
       return;
     }
 
@@ -65,9 +59,12 @@ function AddExamComp({ handleSubmitParent, loading }) {
   const checkingAllQuestions = (allQues) => {
     //this logic return true if all questions, have truthy value on question,options,n answer
     const everythingGood = allQues.every(
-      (ques) => ques.question && ques.answer && ques.options.every((opt) => opt)
+      (ques) =>
+        ques?.question?.trim() &&
+        ques?.answer &&
+        ques?.options?.every((opt) => opt)
     );
-    // console.log('every',everythingGood);
+    //console.log('every',everythingGood);
     return everythingGood;
   };
 
@@ -110,11 +107,6 @@ function AddExamComp({ handleSubmitParent, loading }) {
           handleAllQuestions={handleAllQuestions}
           loading={loading}
         />
-        {/* {error.mainErrorMsg && (
-          <div className="e text-red-200 mt-1 text-center">
-            dev-purpose-error-{error.mainErrorMsg}
-          </div>
-        )} */}
       </div>
     </div>
   );

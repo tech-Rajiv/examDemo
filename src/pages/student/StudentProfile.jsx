@@ -22,7 +22,6 @@ function StudentProfile() {
 
   //only when user changed name and clicked to update. this will basically validate a change then process or stop req
   const handleNameChange = async () => {
-
     //if the value is empty so early exit
     if (!localName.trim()) {
       setError("please provide a valid name");
@@ -44,7 +43,6 @@ function StudentProfile() {
     //call main put fn
     fetchAndUpdateName(payload);
   };
-
 
   //main fn that will do a put req
   const fetchAndUpdateName = async (payload) => {
@@ -91,13 +89,15 @@ function StudentProfile() {
                 setLocalName(e.target.value);
               }}
             />
-            {loading ? (
-              <div className="btnPrimary text-center">please wait...</div>
-            ) : (
-              <button onClick={handleNameChange} className="btnPrimary">
-                Change Name
-              </button>
-            )}
+            <button
+              onClick={handleNameChange}
+              disabled={loading}
+              className={` ${
+                localName === name ? "opacity-50" : ""
+              } btnPrimary`}
+            >
+              {loading ? "please wait..." : "Change name"}
+            </button>
           </div>
           {error && <p className="text-red-400 text-sm">{error}</p>}
         </div>

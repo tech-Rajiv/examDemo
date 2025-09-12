@@ -7,10 +7,10 @@ function InputComp({
   value,
   onChangeFn,
   error,
-  disabled,
+  classes,
 }) {
   return (
-    <div className="inp">
+    <div className={`${classes} `}>
       <input
         className="border p-3 rounded w-full"
         type={type}

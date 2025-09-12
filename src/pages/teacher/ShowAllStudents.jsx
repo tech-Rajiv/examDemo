@@ -10,31 +10,30 @@ import Skeleton from "../../components/ui/Skeleton";
 function ShowAllStudents() {
   const [activeOnly, setActiveOnly] = useState(false); //will be used to render different comp based on boolen
 
-  
   //this is value that is stored as allStudents propbably has 1100+ so i donot want to refresh on comp mount bcz it doesnt matter that deep that one student is less or more so
   const allStudentsAreadyInStore = useSelector(
     (state) => state.teacher.allStudentsArray
   );
-  
+
   //this is done at time getting all students just filter active to new variable and will be shown based on variable activeOnly
   const allStudentsActiveOnly = useSelector(
     (state) => state.teacher.allActiveStudentsArray
   );
-  
+
   //here iam getting function not calling, which will dispatch a event and setallStudents data
   const { fetchAllStudentsToShow, loading, error } = useFetchHookForTeacher();
-  
+
   useEffect(() => {
     // before calling iam checking if i already have stored the data, cache
     if (!allStudentsAreadyInStore || allStudentsAreadyInStore?.length == 0) {
       fetchAllStudentsToShow("dashboard/Teachers");
     }
   }, []);
-  
+
   const handleRefresh = () => {
     fetchAllStudentsToShow("dashboard/Teachers");
   };
-  
+
   //search specific, this feature is currently not fully developed
   const [searchValue, setSearchValue] = useState("");
   const [searchedResult, setSearchedResult] = useState([]);
@@ -49,7 +48,7 @@ function ShowAllStudents() {
   //   }
   // }, [searchValue]);
   return (
-    <div className="max-w-7xl mx-auto py-5 ">
+    <div className="max-w-7xl  mx-auto py-5 ">
       <div className="wrapper flex flex-col gap-10">
         <div className="text-center flex  justify-between items-center text-xl">
           <div className="normal flex gap-2 items-center  underline-offset-12">
