@@ -48,18 +48,32 @@ function CreateExamParentComp({
 
   //this runs when user types a questions and it also does two thing as above(handleAnswerChange) 1.to let user do, 2.to show errors of what he did
   const handleQuestionOnChange = (newValue) => {
-    const updated = structuredClone(questions); //this is basic js logic, not react friendly style but this situation need this style as i want updated ques and to compare it at same time
-    updated[currentQuestionIndex].question = newValue;
-    setQuestions(updated);
-    const error = questionValidation(updated, newValue, currentQuestionIndex);
+    let updated;
+    if (newValue) {
+      updated = structuredClone(questions); //this is basic js logic, not react friendly style but this situation need this style as i want updated ques and to compare it at same time
+      updated[currentQuestionIndex].question = newValue;
+      setQuestions(updated);
+    }
+    const error = questionValidation(
+      newValue ? updated : questions,
+      newValue,
+      currentQuestionIndex
+    );
     settingQuesError(error);
   };
 
   //staright forward as last wo, do let user add option and show error
   const handleOptionOnChange = (newValue, optIndex) => {
-    const updated = structuredClone(questions); //same js logic for same reason as above questionOnChang
-    updated[currentQuestionIndex].options[optIndex].value = newValue;
-    const error = optionsValidations(updated[currentQuestionIndex].options);
+    let updated;
+    if (newValue) {
+      updated = structuredClone(questions); //same js logic for same reason as above questionOnChang
+      updated[currentQuestionIndex].options[optIndex].value = newValue;
+    }
+    const error = optionsValidations(
+      newValue
+        ? updated[currentQuestionIndex].options
+        : questions[currentQuestionIndex].options
+    );
     settingOptError(error);
     setQuestions(updated);
   };
